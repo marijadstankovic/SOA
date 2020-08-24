@@ -1,0 +1,82 @@
+version: '3.0'
+services:
+    mongodata:
+      image: mongo
+      volumes:
+        - mongodata:/data/db
+    mongoevents:
+      image: mongo
+      volumes:
+        - mongoevents:/data/db
+    nats:
+      image: nats:latest
+    device:
+      build:
+        context: .
+      env_file: docker-compose.env
+      environment:
+        NODEID: "node-device"
+        SERVICES: device
+        PORT: 4000
+      ports:
+        - "4000:4000"
+      depends_on:
+        - nats
+    data:
+      build:
+        context: .
+      env_file: docker-compose.env
+      environment:
+        NODEID: "node-data"
+        SERVICES: data
+        PORT: 4001
+      ports:
+        - "4001:4001"
+      depends_on:
+        - nats
+        - mongodata
+      links:
+        - mongodata
+    analytics:
+      build:
+        context: .
+      env_file: docker-compose.env
+      environment:
+        NODEID: "node-analytics"
+        SERVICES: analytics
+        PORT: 4002
+      ports:
+        - "4002:4002"
+      depends_on:
+        - nats
+        - mongoevents
+      links:
+        - mongoevents
+    command:
+      build:
+        context: .
+      env_file: docker-compose.env
+      environment:
+        NODEID: "node-command"
+        SERVICES: command
+        PORT: 4003
+      ports:
+        - "4003:4003"
+      depends_on:
+        - nats
+    gateway:
+      build:
+        context: .
+      image: service-gateway
+      env_file: docker-compose.env
+      environment:
+        NODEID: "node-gateway"
+        SERVICES: gateway
+        PORT: 4004
+      ports:
+        - "4004:4004"
+      depends_on:
+        - nats
+volumes:
+  mongodata:
+  mongoevents:
