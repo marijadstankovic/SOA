@@ -197,7 +197,7 @@ module.exports = {
         this.initRoutes(app);
         this.app = app;
 
-        this.interval = 70000;
+        this.interval = 700;
         this.init();
     }
 };

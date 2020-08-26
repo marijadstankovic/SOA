@@ -9,13 +9,13 @@ export default class App extends Component {
     this.state = {
 	  listening: false,
 	  markers: [],
-	  source: new EventSource('http://localhost:4002/events')
+	  source: new EventSource("http://localhost:4002/" + 'events')
     };
   }
 	
   componentDidMount(){
 	  const {markers, source} = this.state;
-	  
+	  console.log(this.state.source);
 	  source.onmessage =  event  => {
 		var data = JSON.parse(event.data);
 		if(!this.state.listening)
@@ -99,7 +99,7 @@ export default class App extends Component {
 			  <Marker key={`${idx}`} position={marker.position}
 			  			icon = {new Icon({
 							iconUrl: require('./icons/map-pin'+marker.full_code+'.png'),
-							iconSize: [20, 20]
+							iconSize: [30, 30]
 						})}
 						onMouseOver={(e) => {
 						  e.target.openPopup();
