@@ -3,11 +3,6 @@ import './App.css';
 import { Map, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from 'leaflet';
 
-const iconPerson = new Icon({
-    iconUrl: require('./icons/man-user.svg'),
-    iconSize: [15, 24]
-});
-
 export default class App extends Component {
   constructor() {
     super();
@@ -33,7 +28,7 @@ export default class App extends Component {
 					{
 						position: [Number(element.latitude), Number(element.longitude)],
 						name: element.name,
-						docker: element.docks,
+						docks: element.docks,
 						docks_available: element.docks_available,
 						percentage: element.percentage,
 						full_code: element.full_code
@@ -45,18 +40,40 @@ export default class App extends Component {
 		}
 		else{
 			let markers=  this.state.markers;
+			console.log(data.name);
 			if(data.code === "add")
 			{
-
+				markers.push({
+					position: [Number(data.latitude), Number(data.longitude)],
+					name: data.name,
+					docks: data.docks,
+					docks_available: data.docks_available,
+					percentage: data.percentage,
+					full_code: data.full_code
+				});
 			}
 			if(data.code === "remove")
 			{
-
+				markers = markers.filter(marker => marker.stationId != data.stationId)
 			}
 			if(data.code === "update")
 			{
-				
+				markers = markers.map(marker => {
+					if(marker.stationId == data.stationId)
+					{
+						marker = {
+							position: [Number(data.latitude), Number(data.longitude)],
+							name: data.name,
+							docks: data.docks,
+							docks_available: data.docks_available,
+							percentage: data.percentage,
+							full_code: data.full_code
+						}
+					}
+					return marker;
+				})
 			}
+			this.setState({markers:markers});
 		}
 	  };
   }
@@ -81,8 +98,8 @@ export default class App extends Component {
 			{this.state.markers.map((marker, idx) => 
 			  <Marker key={`${idx}`} position={marker.position}
 			  			icon = {new Icon({
-							iconUrl: require('./icons/man-user.svg'),
-							iconSize: [marker.full_code*10, marker.full_code*10]
+							iconUrl: require('./icons/map-pin'+marker.full_code+'.png'),
+							iconSize: [20, 20]
 						})}
 						onMouseOver={(e) => {
 						  e.target.openPopup();
@@ -93,9 +110,11 @@ export default class App extends Component {
 				<Popup key={`popup-${idx}`} position={marker.position} >
 					{marker.name}
 					<br/>
-					{marker.percentage}
+					Docks available: {marker.docks_available}
 					<br/>
-					{marker.full_code}
+					Docks: {marker.docks}
+					<br/>
+					Percentage full: {100 - marker.percentage} %
 					</Popup>
 			  </ Marker>
 			)}	
@@ -106,17 +125,3 @@ export default class App extends Component {
     );
   }
 }
-
-/**
-{this.state.markers.map((marker, idx) => 
-			  <Marker key={`${idx}`} position={marker} icon = {iconPerson}
-						onMouseOver={(e) => {
-						  e.target.openPopup();
-						}}
-						onMouseOut={(e) => {
-						  e.target.closePopup();
-						}}>
-				<Popup key={`popup-${idx}`} position={marker} >Sydney</Popup>
-			  </ Marker>
-			)}	
- */

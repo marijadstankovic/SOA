@@ -17,7 +17,7 @@ module.exports = {
     methods: {
         init() {
             var i;
-            for(i=2;i<20;i++)
+            for(i=2;i<600;i++)
             {
                 stations[i] = 0;
                 station_keys.push(i);
@@ -25,6 +25,10 @@ module.exports = {
             console.log(stations);
             console.log(station_keys);
             setInterval(() => {
+                if(station_keys.length==0)
+                {
+                    this.sendFixed();
+                }
                 if(Math.random()<0.1)
                 {
                     if(Math.random()>0.5){
@@ -193,7 +197,7 @@ module.exports = {
         this.initRoutes(app);
         this.app = app;
 
-        this.interval = 1000;
+        this.interval = 70000;
         this.init();
     }
 };
