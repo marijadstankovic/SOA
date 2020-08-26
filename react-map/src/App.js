@@ -4,15 +4,15 @@ import { Map, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from 'leaflet';
 
 const iconPerson = new Icon({
-    iconUrl: require('./man-user.svg'),
+    iconUrl: require('./icons/man-user.svg'),
     iconSize: [15, 24]
-
 });
 
 export default class App extends Component {
   constructor() {
     super();
     this.state = {
+	  listening: false,
 	  markers: [],
 	  source: new EventSource('http://localhost:4002/events')
     };
@@ -22,9 +22,11 @@ export default class App extends Component {
 	  const {markers, source} = this.state;
 	  
 	  source.onmessage =  event  => {
-		  var data = JSON.parse(event.data);
+		var data = JSON.parse(event.data);
+		if(!this.state.listening)
+		{
 		  data.shift();
-
+		  console.log(data);
 		  data.forEach(element => {
 			  if( !isNaN(Number(element.latitude)) && !isNaN(Number(element.longitude))){
 				markers.push(
@@ -32,13 +34,30 @@ export default class App extends Component {
 						position: [Number(element.latitude), Number(element.longitude)],
 						name: element.name,
 						docker: element.docks,
-						docks_available: element.docks_available
+						docks_available: element.docks_available,
+						percentage: element.percentage,
+						full_code: element.full_code
 					});
 			  }
 
 		  });
-		  this.setState({markers:markers, source: source});
-		  
+		  this.setState({listening: true, markers:markers, source: source});
+		}
+		else{
+			let markers=  this.state.markers;
+			if(data.code === "add")
+			{
+
+			}
+			if(data.code === "remove")
+			{
+
+			}
+			if(data.code === "update")
+			{
+				
+			}
+		}
 	  };
   }
   
@@ -60,14 +79,24 @@ export default class App extends Component {
 			  height="100%"
 			/>
 			{this.state.markers.map((marker, idx) => 
-			  <Marker key={`${idx}`} position={marker.position} icon = {iconPerson}
+			  <Marker key={`${idx}`} position={marker.position}
+			  			icon = {new Icon({
+							iconUrl: require('./icons/man-user.svg'),
+							iconSize: [marker.full_code*10, marker.full_code*10]
+						})}
 						onMouseOver={(e) => {
 						  e.target.openPopup();
 						}}
 						onMouseOut={(e) => {
 						  e.target.closePopup();
 						}}>
-				<Popup key={`popup-${idx}`} position={marker.position} >{marker.name}</Popup>
+				<Popup key={`popup-${idx}`} position={marker.position} >
+					{marker.name}
+					<br/>
+					{marker.percentage}
+					<br/>
+					{marker.full_code}
+					</Popup>
 			  </ Marker>
 			)}	
 		  </Map>

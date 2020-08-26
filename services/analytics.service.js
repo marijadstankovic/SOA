@@ -55,18 +55,48 @@ module.exports = {
                         "docks": Number(data[3]),
                         "docks_available": 0
                     };
+                    me.adapter.insert(doc);
+                    let percentage = doc["docks"] !=0 ? doc["docks_available"]*100/doc["docks"] : 0;
+                    doc["full_code"] = 0;
+                    if(percentage == 0){
+                        doc["full_code"] = 1;
+                    }
+                    if(percentage <= 10){
+                        doc["full_code"] = 2;
+                    }
+                    if(percentage >= 90){
+                        doc["full_code"] = 3;
+                    }
+                    if(percentage == 100){
+                        doc["full_code"] = 4;
+                    }
+                    doc["percentage"] = percentage;
                     stations.push(doc);
-                    me.adapter.insert(doc);    
                 });
             });
         }
         else
         {
             db.forEach(element => {
-                stations.push(element);
+                var doc = element;
+                let percentage = doc["docks"] !=0 ? doc["docks_available"]*100/doc["docks"] : 0;
+                doc["full_code"] = 0;
+                if(percentage <= 10){
+                    doc["full_code"] = 2;
+                }
+                if(percentage == 0){
+                    doc["full_code"] = 1;
+                }
+                if(percentage >= 90){
+                    doc["full_code"] = 3;
+                }
+                if(percentage == 100){
+                    doc["full_code"] = 4;
+                }
+                doc["percentage"] = percentage;
+                stations.push(doc);
             });
         }
-        //console.log(stations);
     },
     methods: {
         initRoutes(app) {
@@ -112,13 +142,13 @@ module.exports = {
             {
                 this.adapter.updateById(station._id, { $inc: { docks: +1}});
             }
-            
+            this.sendToWebDash(station, "add");
             return Promise.resolve()
                 .then(() => {
                     return res.status(200).send("OK");
                 })
                 .catch(this.handleErr(res));
-
+            
         },
         async putBrokenDock(req, res)
         {
@@ -148,6 +178,7 @@ module.exports = {
                     console.log(res.statusCode);
                     console.log(body);
                 });
+                this.sendToWebDash(station, "remove");
                 return Promise.resolve()
                 .then(() => {
                     return res.status(201).send("Station out of active docks");
@@ -174,6 +205,7 @@ module.exports = {
             }
             this.adapter.updateById(station._id, { $inc: { docks_available: -1}});
             this.adapter.updateById(station._id, { $inc: { docks: -1}});
+            this.sendToWebDash(station, "update");
             return Promise.resolve()
                 .then(() => {
                     return res.status(200).send("OK");
@@ -204,6 +236,28 @@ module.exports = {
                 clients = clients.filter(c => c.id !== clientId);
             });
         },
+        sendToWebDash(station, code)
+        {
+            var doc = station;
+            let percentage = doc["docks"] !=0 ? doc["docks_available"]*100/doc["docks"] : 0;
+            doc["full_code"] = 0;
+            if(percentage <= 10){
+                doc["full_code"] = 2;
+            }
+            if(percentage == 0){
+                doc["full_code"] = 1;
+            }
+            if(percentage >= 90){
+                doc["full_code"] = 3;
+            }
+            if(percentage == 100){
+                doc["full_code"] = 4;
+            }
+            doc["percentage"] = percentage;
+
+            clients.forEach(c=> c.res.write("data: "+JSON.stringify(doc)+"\n\n"));
+        },
+
         handleErr(res) {
             return err => {
                 res.status(err.code || 500).send(err.message);
@@ -238,6 +292,10 @@ module.exports = {
                         console.log(res.statusCode);
                         console.log(body);
                     });
+                    if(station!=null)
+                    {
+                        this.sendToWebDash(station, "remove");
+                    }
                     return;
                 }
                 
@@ -257,10 +315,11 @@ module.exports = {
                         console.log(res.statusCode);
                         console.log(body);
                     });
-
+                    
                 }
                 console.log('res');
                 let res = await this.adapter.updateById(station._id, { $inc: { docks_available: -1}});
+                this.sendToWebDash(station, "update");
                 console.log(res);
             }
         },
@@ -291,6 +350,10 @@ module.exports = {
                         console.log(res.statusCode);
                         console.log(body);
                     });
+                    if(station !=null)
+                    {
+                        this.sendToWebDash(station, "remove");
+                    }
                     return;
                 }
                 
@@ -312,6 +375,7 @@ module.exports = {
                     });
                 }
                 let res = await this.adapter.updateById(station._id, { $inc: { docks_available: 1}});
+                this.sendToWebDash(station, "update");
                 console.log(res);
             }
         }
