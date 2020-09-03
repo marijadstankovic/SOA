@@ -14,11 +14,10 @@ module.exports = {
     settings: {
         port: process.env.PORT || 4001,
 
-        fields: ["_id", "stationId", "taken", "timestamp"],
+        fields: ["_id", "stationId", "event", "timestamp"],
 
 		entityValidator: {
-            stationId: { type: "string", min: 1 },
-            taken: { type: "boolean"}
+            stationId: { type: "string", min: 1 }
             //timestamp: { type: "number", min: 1}
 		}
     },
@@ -36,8 +35,8 @@ module.exports = {
             if(req.query.id){
                 my_query["stationId"] = String(req.query.id);
             }
-            if(req.query.taken){
-                my_query["taken"] = req.query.taken == "true";
+            if(req.query.event){
+                my_query["event"] = String(req.query.event);
             }
             if(req.query.time){
                 my_query["timestamp"] = Date.parse(req.query.time);
@@ -67,8 +66,8 @@ module.exports = {
             if(req.query.id){
                 my_query["stationId"] = String(req.query.id);
             }
-            if(req.query.taken){
-                my_query["taken"] = req.query.taken == "true";
+            if(req.query.event){
+                my_query["event"] = req.query.event;
             }
             my_query["timestamp"] = {
                 "$gt" : Date.parse(req.query.time1),
@@ -87,7 +86,18 @@ module.exports = {
             // ONO STO DOBIJA OD DEVICE MANAGERA
             //upis u bazu
             console.log("//upis u bazu");
+
             const payload = req.body;
+
+            const message = {
+                stationId: String(payload.stationId),
+                "event": "fixed",
+                timestamp: String(payload.timestamp)
+            };
+            console.log(message);
+            this.validateEntity(message);
+            this.adapter.insert(message);
+
             request.put(process.env.ANALYTICS_URL+'fixed', {
                 json: {"stationId" : String(payload.stationId)}
             }, (err, res, body) => {
@@ -103,8 +113,19 @@ module.exports = {
         {
             // ONO STO DOBIJA OD DEVICE MANAGERA
             //upis u bazu
-            console.log("//upis u loseee");
+            
             const payload = req.body;
+
+            const message = {
+                stationId: String(payload.stationId),
+                "event": "broken",
+                timestamp: String(payload.timestamp)
+            };
+            console.log(message);
+            this.validateEntity(message);
+            this.adapter.insert(message);
+
+
             request.put(process.env.ANALYTICS_URL+'brokendock', {
                 json: {"stationId" : String(payload.stationId)}
             }, (err, res, body) => {
@@ -129,7 +150,7 @@ module.exports = {
                //UPIS PODATAKA U BAZU, 
                const message = {
                     stationId: String(payload.stationId),
-                    taken: true,
+                    event: "taken",
                     timestamp: String(payload.timestamp)
                 };
                 console.log(message);
@@ -147,7 +168,7 @@ module.exports = {
                //UPIS PODATAKA U BAZU, 
                const message = {
                     stationId: String(payload.stationId),
-                    taken: false,
+                    "event": "returned",
                     timestamp: String(payload.timestamp)
                 };
                 console.log(message);

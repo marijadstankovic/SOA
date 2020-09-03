@@ -22,8 +22,8 @@ module.exports = {
                 stations[i] = 0;
                 station_keys.push(i);
             }
-            console.log(stations);
-            console.log(station_keys);
+            // console.log(stations);
+            // console.log(station_keys);
             setInterval(() => {
                 if(station_keys.length==0)
                 {
@@ -103,6 +103,7 @@ module.exports = {
         postTURNoff(req, res)
         {
             const payload = req.body;
+            console.log(payload);
             console.log("DOSLO JE DO GRESKE, STANICA SA ID-EM "+ payload.stationId+" SE ISKLJUCUJE");
             broken_stations.push(payload.stationId);
             var i = station_keys.indexOf(Number(payload.stationId));
@@ -117,6 +118,7 @@ module.exports = {
         NotFixed(req, res)
         {
             const payload = req.body;
+            console.log(payload);
             var i = broken_stations.indexOf(Number(payload.stationId));
             if(i > -1)
             {
@@ -132,6 +134,7 @@ module.exports = {
         putFULL(req, res)
         {
             const payload = req.body;
+            console.log(payload);
             console.log("stanica " + payload.stationId + " puna");
             if(stations[Number(payload.stationId)] != null){
                 stations[Number(payload.stationId)] = 1;
@@ -144,6 +147,8 @@ module.exports = {
         putEMPTY(req, res)
         {
             const payload = req.body;
+            console.log(payload);
+            console.log(payload);
             console.log("stanica " + payload.stationId + " prazna");
             if(stations[Number(payload.stationId)] != null){
                 stations[Number(payload.stationId)] = 2;
@@ -197,7 +202,7 @@ module.exports = {
         this.initRoutes(app);
         this.app = app;
 
-        this.interval = 700;
+        this.interval = 70000000;
         this.init();
     }
 };

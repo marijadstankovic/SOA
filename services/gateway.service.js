@@ -43,7 +43,6 @@ module.exports = {
                         return response.send(err);
                     }
                     console.log(res.statusCode);
-                    console.log(body);
                     return response.send(body);
                 })
         },
@@ -68,7 +67,6 @@ module.exports = {
                     return response.send(err);
                 }
                 console.log(res.statusCode);
-                console.log(body);
                 return response.send(body);
             });
         },
@@ -96,7 +94,6 @@ module.exports = {
                     return response.send(err);
                 }
                 console.log(res.statusCode);
-                console.log(body);
                 return response.send(body);
             });
         },
@@ -118,6 +115,7 @@ module.exports = {
         postTurnOffStation(reqest, response)
         {
             const payload = reqest.body;
+            console.log(payload);
             request.post(process.env.DEVICE_URL + "turnoff", {
                 json: { stationId: payload.stationId }
             },
@@ -135,6 +133,7 @@ module.exports = {
         postNotFixed(reqest, response)
         {
             const payload = reqest.body;
+            console.log(payload);
             request.post(process.env.DEVICE_URL + "notfixed", {
                 json: { stationId: payload.stationId }
             },
@@ -152,6 +151,7 @@ module.exports = {
         postError(reqest, response)
         {
             const payload = reqest.body;
+            console.log(payload);
             request.post(process.env.COMMAND_URL + "error", {
                 json: { stationId: payload.stationId }
             },
@@ -169,6 +169,7 @@ module.exports = {
         postCommandNotFixed(reqest, response)
         {
             const payload = reqest.body;
+            console.log(payload);
             request.post(process.env.COMMAND_URL + "notfixed", {
                 json: { stationId: payload.stationId }
             },
@@ -186,6 +187,7 @@ module.exports = {
         postBrokenStation(reqest, response)
         {
             const payload = reqest.body;
+            console.log(payload);
             request.post(process.env.COMMAND_URL + "brokenstation", {
                 json: { stationId: payload.stationId }
             },
@@ -203,6 +205,9 @@ module.exports = {
 
         putFullStation(reqest, response){
             const payload = reqest.body;
+
+            console.log(payload);
+            
             request.put(process.env.DEVICE_URL + "full", {
                 json: { stationId: payload.stationId }
             },
@@ -219,6 +224,7 @@ module.exports = {
         },
         putEmptyStation(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.DEVICE_URL + "empty", {
                 json: { stationId: payload.stationId }
             },
@@ -235,6 +241,7 @@ module.exports = {
         },
         putFixedData(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.DATA_URL + "fixed", {
                 json: { stationId: payload.stationId }
             },
@@ -251,6 +258,7 @@ module.exports = {
         },
         putDataBrokenDock(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.DATA_URL + "brokendock", {
                 json: { stationId: payload.stationId }
             },
@@ -267,6 +275,7 @@ module.exports = {
         },
         putAnalyticsFixed(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.ANALYTICS_URL + "fixed", {
                 json: { stationId: payload.stationId }
             },
@@ -283,6 +292,7 @@ module.exports = {
         },
         putAnalyticsBrokenDock(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.ANALYTICS_URL + "brokendock", {
                 json: { stationId: payload.stationId }
             },
@@ -299,6 +309,7 @@ module.exports = {
         },
         putFullStationCommand(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.COMMAND_URL + "full", {
                 json: { stationId: payload.stationId }
             },
@@ -315,6 +326,7 @@ module.exports = {
         },
         putEmptyStationCommand(reqest, response){
             const payload = reqest.body;
+            console.log(payload);
             request.put(process.env.COMMAND_URL + "empty", {
                 json: { stationId: payload.stationId }
             },
